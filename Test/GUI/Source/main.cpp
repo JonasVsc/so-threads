@@ -1,8 +1,4 @@
-#include<SDL3/SDL.h>
-#include "Input.h"
-#include "Window.h"
-#include "Renderer.h"
-#include "Gui.h"
+#include <Canvas.h>
 
 int main()
 {

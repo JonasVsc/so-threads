@@ -1,19 +1,13 @@
-#include <semaphore>
-#include <cstdint>
-#include <thread>
-#include <print>
-#include <mutex>
+#include <Canvas.h>
 #include <array>
-#include <string_view>
-#include <cassert>
 
 // Sync Objects
 
-static constexpr uint32_t maxItems{ 100 };
+constexpr uint32_t buffer_size{ 100u };
 
-std::mutex mtx;
-std::counting_semaphore full(maxItems);
-std::binary_semaphore empty(0);
+SDL_Mutex* mtx{ nullptr };
+SDL_Semaphore* empty{ nullptr };
+SDL_Semaphore* full{ nullptr };
 
 // Structs
 
@@ -25,77 +19,111 @@ struct Item
 class ItemManager
 {
 public:
-	
+
 	static void consume_item(Item& item)
 	{
 		std::println("Consuming: {}", item.name);
 	}
 
-	static void insert_item(Item& item) 
-	{ 
+	static void insert_item(Item& item)
+	{
 		assert(!is_full() && "failed to insert item. m_items is full");
 		m_items[m_count++] = item;
 	}
 
-	static Item remove_item() 
+	static Item remove_item()
 	{
 		assert(!is_empty() && "failed to remove item. m_items is empty");
-		return m_items[--m_count]; 
+		return m_items[--m_count];
 	}
 
-	static bool is_full() { return m_count == maxItems; }
+	static bool is_full() { return m_count == buffer_size; }
 	static bool is_empty() { return m_count == 0; }
 
 private:
 
-	inline static std::array<Item, maxItems> m_items{};
+	inline static std::array<Item, buffer_size> m_items{};
 	inline static uint32_t m_count{};
 };
 
 
-static void producer()
+static int SDLCALL producer(void* data)
 {
 	static uint32_t id = 0;
 
 	while (true)
 	{
 		Item item{ std::format("AwesomeItem{}", id++) };
-		full.acquire();
+
+		SDL_WaitSemaphore(empty);
 
 		{
-			std::lock_guard<std::mutex> lock(mtx);
-			std::println("Inserting: {}", item.name);
+			SDL_LockMutex(mtx);
+			canvas::log("Inserting: {}", item.name);
 			ItemManager::insert_item(item);
+			SDL_UnlockMutex(mtx);
 		}
 
-		empty.release();
+		SDL_SignalSemaphore(full);
 	}
+
+	return 0;
 }
 
-static void consumer()
+static int SDLCALL consumer(void* data)
 {
 	while (true)
 	{
-		empty.acquire();
+		SDL_WaitSemaphore(full);
 		Item item;
-		
+
 		{
-			std::lock_guard<std::mutex> lock(mtx);
+			SDL_LockMutex(mtx);
 			item = ItemManager::remove_item();
+			SDL_UnlockMutex(mtx);
 		}
 
-		full.release();
+		SDL_SignalSemaphore(empty);
 		ItemManager::consume_item(item);
 	}
+
+	return 0;
 }
 
 int main()
 {
-	std::thread t1(producer);
-	std::thread t2(consumer);
+	mtx = SDL_CreateMutex();
+	full = SDL_CreateSemaphore(0u);
+	empty = SDL_CreateSemaphore(buffer_size);
 
-	t1.join();
-	t2.join();
+	if (!mtx || !full || !empty)
+	{
+		canvas::log("Failed to create sync objects");
+		return 1;
+	}
+
+
+	SDL_Thread* t1{ nullptr };
+	SDL_Thread* t2{ nullptr };
+
+	t1 = SDL_CreateThread(producer, "ProducerThread", nullptr);
+	t2 = SDL_CreateThread(consumer, "ConsumerThread", nullptr);
+
+
+	if (!t1 || !t2)
+	{
+		canvas::log("Failed to create thread");
+		return 1;
+	}
+
+
+	int ret{};
+	SDL_WaitThread(t1, &ret);
+	canvas::log("Thread T1 encerrado com status {}", ret);
+
+	SDL_WaitThread(t2, &ret);
+	canvas::log("Thread T2 encerrado com status {}", ret);
+
 
 	return 0;
 }

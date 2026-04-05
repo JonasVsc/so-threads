@@ -33,9 +33,13 @@ int main()
 	// app state
 	std::vector<std::unique_ptr<Child>> childs;
 
+	canvas::Time::init();
+
 	while (!window.should_close())
 	{
+		canvas::Time::tick();
 		canvas::Input::update();
+
 		window.poll_events();
 
 		canvas::Renderer::begin();
@@ -61,21 +65,17 @@ int main()
 
 			ImGui::Separator();
 
-			// Botão Cancel
 			if (ImGui::Button("Cancel", ImVec2(120, 0)))
 			{
 				ImGui::CloseCurrentPopup();
 			}
 			
 			ImGui::SameLine();
-			// Botão Confirm
 			if (ImGui::Button("Create", ImVec2(120, 0))) 
 			{
 				childs.push_back(ChildForm::create());
 				ImGui::CloseCurrentPopup();
 			}
-
-
 
 			ImGui::EndPopup();
 		}

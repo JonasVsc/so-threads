@@ -4,6 +4,7 @@
 #include <imgui.h>
 
 #include "Log.h"
+#include "CanvasTime.h"
 #include "Input.h"
 #include "Window.h"
 #include "Renderer.h"

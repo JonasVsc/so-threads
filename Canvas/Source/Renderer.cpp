@@ -3,7 +3,7 @@
 
 namespace canvas
 {
-	ImVec4 Renderer::s_clear_color{ 0.45f, 0.55f, 0.60f, 1.00f };
+	ImVec4 Renderer::s_clear_color{ 0.35f, 0.60f, 0.30f, 1.00f };
 	SDL_Renderer* Renderer::s_handle{ nullptr };
 	SDL_Window* Renderer::s_window{ nullptr };
 

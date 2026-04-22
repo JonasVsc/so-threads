@@ -30,7 +30,7 @@ namespace canvas
 
 	Window::Window(const char* title, int width, int height)
 	{
-		m_handle = SDL_CreateWindow(title, width, height, 0);
+		m_handle = SDL_CreateWindow(title, width, height, SDL_WINDOW_RESIZABLE);
 	}
 
 	Window::~Window()
@@ -67,6 +67,11 @@ namespace canvas
 			case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
 			{
 				m_should_close = true;
+				break;
+			}
+			case SDL_EVENT_WINDOW_RESIZED:
+			{
+				m_was_resized = true;
 				break;
 			}
 			}

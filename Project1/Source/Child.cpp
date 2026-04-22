@@ -2,7 +2,7 @@
 
 int Child::s_id{};
 
-static int SDLCALL child_fn(void* data)
+static int SDLCALL child_thread(void* data)
 {
 	Child* child_data = static_cast<Child*>(data);
 	while (true)
@@ -22,7 +22,7 @@ void Child::create(const char* name, bool has_ball, float tb, float td)
 	m_Tb = tb;
 	m_Td = td;
 
-	m_thread = SDL_CreateThread(child_fn, "ThreadChild", this);
+	m_thread = SDL_CreateThread(child_thread, "ChildThread", this);
 }
 
 Child::~Child()

@@ -21,7 +21,7 @@ public:
 
     CreateChildPopup(std::vector<std::unique_ptr<Child>>& childs);
 
-    void draw();
+    void render();
 
     void reset();
 

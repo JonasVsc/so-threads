@@ -6,7 +6,7 @@ CreateChildPopup::CreateChildPopup(std::vector<std::unique_ptr<Child>>& childs)
 {
 }
 
-void CreateChildPopup::draw()
+void CreateChildPopup::render()
 {
     if (ImGui::BeginPopupModal("Create Child", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) 
     {

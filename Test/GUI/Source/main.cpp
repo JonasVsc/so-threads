@@ -10,7 +10,7 @@ int main()
 
 	canvas::Window window("so-threads TestGui", 640, 480);
 
-	canvas::Renderer::init(window);
+	canvas::Renderer::init(window, false);
 	canvas::Gui::init();
 
 	while (!window.should_close())

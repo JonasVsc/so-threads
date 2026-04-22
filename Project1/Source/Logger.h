@@ -4,6 +4,6 @@ class Logger
 {
 public:
 
-    void draw();
+    void render();
 
 }; // class Logger

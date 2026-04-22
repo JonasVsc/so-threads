@@ -10,7 +10,7 @@ public:
 
     ControlPanel(std::vector<std::unique_ptr<Child>>& childs);
 
-    void draw();
+    void render();
 
 private:
 

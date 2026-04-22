@@ -7,19 +7,15 @@ ControlPanel::ControlPanel(std::vector<std::unique_ptr<Child>>& childs)
 }
 
 
-void ControlPanel::draw()
+void ControlPanel::render()
 {
-    ImGui::Begin("Painel de controle");
-
     if (ImGui::Button("Create Child"))
 	{
 		ImGui::OpenPopup("Create Child");
 	}
 
-	m_create_child_popup.draw();
+	m_create_child_popup.render();
 
 	ImGui::SameLine();
 	ImGui::Text("| K = [ %zu ]", m_childs.size());
-
-    ImGui::End();
 }

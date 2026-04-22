@@ -9,14 +9,20 @@ namespace canvas
 {
 	void Gui::init()
 	{
+		float main_scale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
+
 		// Setup Dear ImGui context
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
+		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
-		// Setup Dear ImGui style
+		ImGuiStyle& style = ImGui::GetStyle();
+		style.ScaleAllSizes(main_scale);
+		style.FontScaleDpi = main_scale;
 		ImGui::StyleColorsDark();
 
 		// Setup Platform/Renderer backends
@@ -41,7 +47,23 @@ namespace canvas
 	void Gui::render()
 	{
 		ImGui::Render();
+
+		// Clear and prepare for UI rendering
+		SDL_SetRenderTarget(Renderer::get_handle(), nullptr);
+		SDL_SetRenderDrawColorFloat(Renderer::get_handle(), 0.1f, 0.1f, 0.1f, 1.0f);
+		SDL_RenderClear(Renderer::get_handle());
+
+		// Render ImGui UI on top
 		ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), Renderer::get_handle());
+
+		if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+		{
+			ImGui::UpdatePlatformWindows();
+			ImGui::RenderPlatformWindowsDefault();
+		}
+
+		// Present frame
+		SDL_RenderPresent(Renderer::get_handle());
 	}
 
 } // namespace canvas
